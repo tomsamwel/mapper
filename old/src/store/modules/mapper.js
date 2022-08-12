@@ -1,13 +1,13 @@
 import Api from "./../../api";
 import Vue from "vue";
 
-// default state
+// state
 const state = {
   backendUrl: "https://suiteux.com/__api/TokenMapper.php",
   datasets: [],
   activeSourceDataset: "test",
   activeTargetDataset: "test",
-  tag: "settings",
+  tag: "",
   source: [{
       name: "herpaderp1",
       type: "bigint",
@@ -31,7 +31,6 @@ const state = {
       composed: [],
       formatter: null,
       sanitizer: null,
-      validator: null,
       default: null,
       label: null,
       disabled: false,
@@ -40,8 +39,7 @@ const state = {
       required: false,
       toolbar: false,
       toolbarIcons: ["bla", "2"],
-      source: "",
-      extra: ""
+      source: ""
     },
     {
       name: "Example",
@@ -49,7 +47,6 @@ const state = {
       composed: [],
       formatter: null,
       sanitizer: null,
-      validator: null,
       default: null,
       label: null,
       disabled: false,
@@ -58,8 +55,7 @@ const state = {
       required: false,
       toolbar: false,
       toolbarIcons: [],
-      source: "",
-      extra: ""
+      source: ""
     },
     {
       name: "Example",
@@ -67,7 +63,6 @@ const state = {
       composed: [],
       formatter: null,
       sanitizer: null,
-      validator: null,
       default: null,
       label: null,
       disabled: false,
@@ -76,8 +71,7 @@ const state = {
       required: false,
       toolbar: false,
       toolbarIcons: [],
-      source: "",
-      extra: ""
+      source: ""
     },
   ],
 };
@@ -168,14 +162,13 @@ const actions = {
     let body = {
       command: "FetchCurrentBinding",
       support: {
-        dataset: state.activeSourceDataset,
+        dataset: "component::" + state.activeTargetDataset,
         tag: state.tag,
       },
     };
 
     Api.post(state.backendUrl, body).then((json) => {
       commit("setTarget", json.payload);
-      commit("setActiveTargetDataset", state.activeSourceDataset);
 
       dispatch("customEvent", "settingMap.load");
     });
@@ -203,6 +196,8 @@ const actions = {
   }, tag) {
     commit("setTag", tag);
   },
+
+
 
   appendToComposedByIndex({
     commit
@@ -275,7 +270,7 @@ const actions = {
     let body = {
       command: "PushBinding",
       support: {
-        dataset: state.activeTargetDataset,
+        dataset: document.querySelectorAll(".mapper-input.source-select")[0].value,
         binding: state.target,
         tag: state.tag,
       },
@@ -343,8 +338,7 @@ const actions = {
       required: false,
       toolbar: false,
       toolbarIcons: [],
-      source: "",
-      extra: ""
+      source: ""
     };
 
     commit("addTarget", newTargetItem);
@@ -352,7 +346,7 @@ const actions = {
 
   addIconByIndex({
     commit
-  }, payload) {
+  }, payload){
     commit("appendToToolbarIconsByIndex", payload);
   },
 

@@ -122,14 +122,14 @@ export default {
       });
     },
 
-    addIcon() {
+    addIcon(){
       this.$store.dispatch("mapper/addIconByIndex", {
         targetIndex: this.index,
-        toolbarIcon: this.newIcon,
+        toolbarIcon: this.newIcon
       });
 
       this.newIcon = "";
-    },
+    }
   },
   watch: {
     field: {
@@ -181,13 +181,6 @@ export default {
 
       <div>
         <label>
-          validator
-          <input v-model="field.validator" class="mapper-input" />
-        </label>
-      </div>
-
-      <div>
-        <label>
           default
           <input v-model="field.default" class="mapper-input" />
         </label>
@@ -221,11 +214,7 @@ export default {
       <div>
         <label>
           group number
-          <input
-            type="number"
-            v-model="field.groupNumber"
-            class="mapper-input"
-          />
+          <input type="number" v-model="field.groupNumber" class="mapper-input" />
         </label>
       </div>
 
@@ -249,7 +238,7 @@ export default {
 
       <div v-if="field.toolbar" class="composed">
         <label>
-          toolbar icon
+          toolbar icon 
           <input v-model="newIcon" class="mapper-input" />
           <button class="mapper-input" @click="addIcon">Add</button>
         </label>
@@ -261,16 +250,10 @@ export default {
         >
           {{ toolbarIcon }}
           <div class="composed-controls">
-            <button
-              @click="moveIconDown(toolbarIconIndex)"
-              class="composed__move"
-            >
+            <button @click="moveIconDown(toolbarIconIndex)" class="composed__move">
               <i class="fa fa-chevron-down" aria-hidden="true"></i>
             </button>
-            <button
-              @click="moveIconUp(toolbarIconIndex)"
-              class="composed__move"
-            >
+            <button @click="moveIconUp(toolbarIconIndex)" class="composed__move">
               <i class="fa fa-chevron-up" aria-hidden="true"></i>
             </button>
 
@@ -282,19 +265,13 @@ export default {
             </button>
           </div>
         </div>
+
       </div>
 
       <div>
         <label>
           source
           <input v-model="field.source" class="mapper-input" />
-        </label>
-      </div>
-
-      <div>
-        <label>
-          extra
-          <input v-model="field.extra" class="mapper-input" />
         </label>
       </div>
 
