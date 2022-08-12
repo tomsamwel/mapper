@@ -1,8 +1,13 @@
-import Vue from 'vue'
-import App from './App.vue'
+import Vue from "vue";
+import store from "./store";
 
-Vue.config.productionTip = false
+import TheMapper from "./components/the-mapper.vue";
+
+Vue.config.productionTip = false;
+
+window.Bus = new Vue();
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+    store,
+    render: (h) => h(TheMapper),
+}).$mount("#app");
