@@ -10,4 +10,4 @@ window.Bus = new Vue();
 new Vue({
     store,
     render: (h) => h(TheMapper),
-}).$mount("#app");
+}).$mount("#token-mapper");

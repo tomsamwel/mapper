@@ -1,17 +1,27 @@
-
 <script>
 export default {
   props: { field: Object, index: Number, isSelected: Boolean },
 
   computed: {
-    reducer: {
+    transformer: {
       get() {
-        return this.field.reducer;
+        return this.field.transformer;
       },
       set(val) {
-        return this.$store.dispatch("mapper/setReducerByIndex", {
+        return this.$store.dispatch("mapper/setTransformerByIndex", {
           targetIndex: this.index,
-          reducer: val,
+          transformer: val,
+        });
+      },
+    },
+    defaultVal: {
+      get() {
+        return this.field.default;
+      },
+      set(val) {
+        return this.$store.dispatch("mapper/setDefaultByIndex", {
+          targetIndex: this.index,
+          default: val,
         });
       },
     },
@@ -20,7 +30,7 @@ export default {
     },
     isEmpty() {
       return this.field.composed.length ? false : true;
-    }
+    },
   },
 
   methods: {
@@ -98,6 +108,12 @@ export default {
         composedIndex: composedIndex,
       });
     },
+
+    deleteTarget() {
+      return this.$store.dispatch("mapper/deleteTargetByIndex", {
+        targetIndex: this.index,
+      });
+    },
   },
   watch: {
     field: {
@@ -116,22 +132,34 @@ export default {
     @drop="drop($event, index)"
     @dragover.prevent
     @dragenter.prevent
-    :class="{ selected: isSelected, unconfirmed: hasUnconfirmed, empty: isEmpty, confirmed: !hasUnconfirmed && !isEmpty }"
+    :class="{
+      selected: isSelected,
+      unconfirmed: hasUnconfirmed,
+      empty: isEmpty,
+      confirmed: !hasUnconfirmed && !isEmpty,
+    }"
     class="mappable-target"
   >
     <div @click="click" class="mappable-header">
       {{ field.name }}
       {{ field.composed && field.composed.length ? field.composed.length : "" }}
+      <button class="mappable-delete" @click="deleteTarget">x</button>
     </div>
 
     <div v-show="isSelected" class="mappable-body">
+      <div class="composed-default">
+        <label>
+          default
+          <input v-model="defaultVal" class="mapper-input" />
+        </label>
+      </div>
+      <div class="composed-transformer">
+        <label>
+          transformer
+          <input v-model="transformer" class="mapper-input" />
+        </label>
+      </div>
       <div v-if="field.composed && field.composed.length" class="composed">
-        <div class="composed-reducer">
-          <label>
-            reducer
-            <input v-model="reducer" class="mapper-input" />
-          </label>
-        </div>
         <div
           v-for="(composed, composedIndex) of field.composed"
           :key="composedIndex"
@@ -162,7 +190,7 @@ export default {
           </div>
         </div>
       </div>
-      <div v-else class="composed__empty">Empty</div>
+      <!-- <div v-else class="composed__empty">Empty</div> -->
     </div>
   </div>
 </template>
@@ -173,7 +201,6 @@ export default {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 
   &.unconfirmed {
-
     .mappable-header {
       background-color: #fff49f;
 
@@ -194,7 +221,6 @@ export default {
   }
 
   &.confirmed {
-
     .mappable-header {
       background-color: #b6fcaf;
 
@@ -215,13 +241,22 @@ export default {
   }
 
   &.empty {
-
     .mappable-header {
       background-color: #ffbf9f;
 
       &:hover {
         background-color: #ffaa80;
       }
+    }
+
+    .mappable-body {
+      background: repeating-linear-gradient(
+        -55deg,
+        #fff,
+        #fff 1rem,
+        #f8f8f8 1rem,
+        #f8f8f8 2rem
+      );
     }
 
     &.selected {
@@ -249,6 +284,9 @@ export default {
     padding: 1rem;
     cursor: pointer;
     transition: 300ms;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 
     &:hover {
       background-color: #a0dbe6;
@@ -256,25 +294,12 @@ export default {
   }
 
   .mappable-body {
-    .composed {
-      padding: 1rem 1.5rem 1rem 1.5rem;
-    }
-  }
-
-  .composed__empty {
     padding: 1rem 1.5rem 1rem 1.5rem;
-
-    background: repeating-linear-gradient(
-      -55deg,
-      #fff,
-      #fff 1rem,
-      #f8f8f8 1rem,
-      #f8f8f8 2rem
-    );
   }
 
   .composed-item {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     color: red;

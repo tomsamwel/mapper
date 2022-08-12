@@ -1,47 +1,9 @@
 import Api from "./../../api";
 import Vue from "vue";
 
-function levenshtein(a, b) {
-  if (a.length === 0) return b.length;
-  if (b.length === 0) return a.length;
-
-  var matrix = [];
-
-  // increment along the first column of each row
-  var i;
-  for (i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
-  }
-
-  // increment each column in the first row
-  var j;
-  for (j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
-  }
-
-  // Fill in the rest of the matrix
-  for (i = 1; i <= b.length; i++) {
-    for (j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) == a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // substitution
-          Math.min(
-            matrix[i][j - 1] + 1, // insertion
-            matrix[i - 1][j] + 1
-          )
-        ); // deletion
-      }
-    }
-  }
-
-  return matrix[b.length][a.length];
-}
-
 // state
 const state = {
-  backendUrl: "https://suiteux.com/__api/DataMapper.php",
+  backendUrl: "https://suiteux.com/__api/TokenMapper.php",
   datasets: [],
   activeSourceDataset: "test",
   activeTargetDataset: "test",
@@ -52,14 +14,16 @@ const state = {
       type: "bigint",
       composed: ["id"],
       formatter: null,
-      reducer: null,
+      transformer: null,
+      default: null,
     },
     {
       name: "Example",
       type: "varchar",
       composed: ["Example"],
       formatter: null,
-      reducer: null,
+      transformer: null,
+      default: null,
     },
   ],
   target: [
@@ -68,21 +32,24 @@ const state = {
       type: "bigint",
       composed: [],
       formatter: null,
-      reducer: null,
+      transformer: null,
+      default: null,
     },
     {
       name: "Example",
       type: "varchar",
       composed: [],
       formatter: null,
-      reducer: null,
+      transformer: null,
+      default: null,
     },
     {
-        name: "Example",
-        type: "varchar",
-        composed: [],
-        formatter: null,
-        reducer: null,
+      name: "Example",
+      type: "varchar",
+      composed: [],
+      formatter: null,
+      transformer: null,
+      default: null,
     },
   ],
 };
@@ -98,9 +65,6 @@ const getters = {
   activeTargetDataset(state) {
     return state.activeTargetDataset;
   },
-  tag(state) {
-    return state.tag;
-  },
   source(state) {
     return state.source;
   },
@@ -108,27 +72,33 @@ const getters = {
   target(state) {
     return state.target;
   },
+
+  backendUrl(state) {
+    return state.backendUrl;
+  },
+
+  tag(state) {
+    return state.tag;
+  },
 };
-
-/*
-API Request Syntax
-{
-    command : "someClassFunction",
-    support : {
-        argument_1 : "value",
-        argument_2 : 1234
-    }
-}
-
-API Commands:
-ListDatasets            ( expects nothing )
-FetchDatasetHeader      ( expects support == {"dataset" : "dataset_name" } )
-PushBinding             ( expects support == {"dataset" : "dataset_name", "tag": "tag_string", "binding" : "{jsonblob}" } )
-FetchCurrentBinding     ( expects support == {"dataset" : "dataset_name", "tag": "tag_string"} )
-*/
 
 // actions
 const actions = {
+  customEvent({state}, eventName){
+    //dispatch event for other tools
+    try {
+      let event = new CustomEvent(eventName, {
+        detail: state.target,
+      });
+
+      document.dispatchEvent(event);
+      console.log(state.target);
+    } catch (error) {
+      console.log("something went wrong firing: " + eventName);
+      console.log(error);
+    }
+  },
+
   fetchDatasets({ commit, state }) {
     let body = {
       command: "ListDatasets",
@@ -154,18 +124,21 @@ const actions = {
     });
   },
 
-  fetchTarget({ commit, state }) {
+  fetchTarget({ commit, state, dispatch }) {
     let body = {
       command: "FetchCurrentBinding",
       support: {
-        dataset: state.activeTargetDataset,
+        dataset: "component::" + state.activeTargetDataset,
         tag: state.tag,
       },
     };
 
     Api.post(state.backendUrl, body).then((json) => {
       commit("setTarget", json.payload);
+
+      dispatch("customEvent", "tokenMap.load");
     });
+
   },
 
   setActiveSourceDataset({ commit, dispatch }, dataset) {
@@ -182,8 +155,24 @@ const actions = {
     commit("setTag", tag);
   },
 
-  setReducerByIndex({ commit }, payload) {
-    commit("setReducerByIndex", payload);
+  setTransformerByIndex({ commit }, payload) {
+    commit("setTransformerByIndex", payload);
+  },
+
+  setDefaultByIndex({ commit }, payload) {
+    commit("setDefaultByIndex", payload);
+
+    //dispatch event for other tools
+    // try {
+    //   let event = new CustomEvent("tokenMap.token.change", {
+    //     detail: state.target,
+    //   });
+
+    //   document.dispatchEvent(event);
+    // } catch (error) {
+    //   console.log("something went wrong firing tokenMap.change event");
+    //   console.log(error);
+    // }
   },
 
   appendToComposedByIndex({ commit }, payload) {
@@ -215,13 +204,13 @@ const actions = {
     }
   },
 
-  save({ state }) {
+  save({ state, dispatch }) {
     let body = {
       command: "PushBinding",
       support: {
-        dataset: state.activeTargetDataset,
-        tag: state.tag,
+        dataset: "component::" + state.activeTargetDataset,
         binding: state.target,
+        tag: state.tag,
       },
     };
 
@@ -230,52 +219,22 @@ const actions = {
         console.log(json);
       })
       .catch((err) => {
-        alert("something went wrong saving" + err);
-      });
-  },
-
-  autoMatchLevenshtein({ state, commit, getters }, minRatio = 0.7) {
-    state.source.forEach((source) => {
-
-        //check if its already bound
-        if(getters["target"].find((target) => {
-            if (target.composed.find((composed) => 
-                composed.field === source.name
-            )) return 1;
-        })) return 1;
-
-      state.target.every((target) => {
-        
-        let lev = levenshtein(source.name, target.name)
-        let ratio = (source.name.length - lev)/source.name.length
-        // alert(source.name+ "  <-->  "+target.name +"\nlev: " + lev + "\nratio: " + ratio);
-        if (ratio >= minRatio) {
-            let payload = {
-                name: source.name,
-                index: state.target.indexOf(target),
-                confirmed: false,
-              };
-        
-              commit("appendToComposedByIndex", payload);
-              return false;
-        }
-        return true;
-
+        alert("something went wrong saving to api" + err);
       });
 
-    //   if (!match) return;
+    //dispatch event for other tools
+    // try {
+    //   let event = new CustomEvent("tokenMap.save", {
+    //     detail: state.target,
+    //   });
 
-    //   if (
-    //     match.composed.find(
-    //       (composed) =>
-    //         composed.field === match.name &&
-    //         composed.source === state.activeSourceDataset
-    //     )
-    //   )
-    //     return;
+    //   document.dispatchEvent(event);
+    // } catch (error) {
+    //   console.log("something went wrong firing tokenMap.save event");
+    //   console.log(error);
+    // }
 
-      
-    });
+    dispatch("customEvent", "tokenMap.save");
   },
 
   autoMatch({ state, commit }) {
@@ -301,6 +260,27 @@ const actions = {
 
       commit("appendToComposedByIndex", payload);
     });
+  },
+
+  deleteTargetByIndex({ commit }, payload) {
+    commit("deleteTargetByIndex", payload);
+  },
+
+  addTarget({ commit }, payload) {
+    let newTargetItem = {
+      name: payload.targetName,
+      type: "",
+      composed: [],
+      formatter: null,
+      transformer: null,
+      default: null,
+    };
+
+    commit("addTarget", newTargetItem);
+  },
+
+  setBackendUrl({ commit }, url) {
+    commit("setBackendUrl", url);
   },
 };
 
@@ -330,8 +310,12 @@ const mutations = {
     state.tag = tag;
   },
 
-  setReducerByIndex(state, payload) {
-    state.target[payload.targetIndex].reducer = payload.reducer;
+  setTransformerByIndex(state, payload) {
+    state.target[payload.targetIndex].transformer = payload.transformer;
+  },
+
+  setDefaultByIndex(state, payload) {
+    state.target[payload.targetIndex].default = payload.default;
   },
 
   appendToComposedByIndex(state, payload) {
@@ -371,6 +355,18 @@ const mutations = {
       state.target[payload.targetIndex].composed[payload.indexes[1]],
       state.target[payload.targetIndex].composed[payload.indexes[0]]
     ); //Replace from lowest index, two elements, reverting the order
+  },
+
+  deleteTargetByIndex(state, payload) {
+    state.target.splice(payload.targetIndex, 1);
+  },
+
+  addTarget(state, newTargetItem) {
+    state.target.push(newTargetItem);
+  },
+
+  setBackendUrl(state, url) {
+    state.backendUrl = url;
   },
 };
 
