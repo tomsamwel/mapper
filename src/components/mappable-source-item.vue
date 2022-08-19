@@ -46,8 +46,7 @@ export default {
     draggable="true"
   >
     <slot>
-      {{ field.name }}
-      <small>{{ field.type }}</small>
+      {{ field.name }} | {{ field.type }}
     </slot>
   </div>
 </template>

@@ -5,24 +5,19 @@ import Vue from "vue";
 const state = {
   backendUrl: "https://suiteux.com/__api/TokenMapper.php",
   datasets: [],
-  activeSourceDataset: "test",
-  activeTargetDataset: "test",
+  activeSourceDataset: "",
+  activeTargetDataset: "",
   tag: "settings",
+  propTypes: [],
   source: [{
-      name: "herpaderp1",
+      name: "Example source item 1",
       type: "bigint",
-      composed: ["id"],
-      formatter: null,
-      sanitizer: null,
-      default: null,
+      composed: ["id"]
     },
     {
-      name: "Example",
+      name: "Example source item 2",
       type: "varchar",
       composed: ["Example"],
-      formatter: null,
-      sanitizer: null,
-      default: null,
     },
   ],
   target: [{
@@ -87,6 +82,9 @@ const getters = {
   datasets(state) {
     return state.datasets;
   },
+  propTypes(state) {
+    return state.propTypes;
+  },
   activeSourceDataset(state) {
     return state.activeSourceDataset;
   },
@@ -141,6 +139,19 @@ const actions = {
       commit("setDatasets", json.payload);
       commit("setActiveSourceDataset", json.payload[0]);
       commit("setActiveTargetDataset", json.payload[0]);
+    });
+  },
+
+  fetchPropTypes({
+    commit,
+    state
+  }) {
+    let body = {
+      command: "ListPropTypes",
+    };
+
+    Api.post(state.backendUrl, body).then( json => {
+      commit("setPropTypes", json.payload);
     });
   },
 
@@ -367,6 +378,10 @@ const actions = {
 const mutations = {
   setDatasets(state, datasets) {
     state.datasets = datasets;
+  },
+
+  setPropTypes(state, propTypes) {
+    state.propTypes = propTypes;
   },
 
   setSource(state, source) {

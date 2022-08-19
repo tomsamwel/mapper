@@ -21,15 +21,18 @@ export default {
     datasets() {
       return this.$store.getters["mapper/datasets"];
     },
+    activeTargetDataset() {
+      return this.$store.getters["mapper/activeTargetDataset"];
+    },
 
     tag: {
-			get() {
-				return this.$store.getters["mapper/tag"];
-			},
-			set(val) {
-				return this.$store.dispatch("mapper/setTag", val);
-			}
-		},
+      get() {
+        return this.$store.getters["mapper/tag"];
+      },
+      set(val) {
+        return this.$store.dispatch("mapper/setTag", val);
+      },
+    },
 
     backendUrl: {
       get() {
@@ -55,8 +58,8 @@ export default {
     },
 
     setTag() {
-			this.$store.dispatch("mapper/fetchTarget");
-		},
+      this.$store.dispatch("mapper/fetchTarget");
+    },
 
     save() {
       return this.$store.dispatch("mapper/save");
@@ -69,8 +72,12 @@ export default {
 
   mounted() {
     this.$store.dispatch("mapper/fetchDatasets");
+    this.$store.dispatch("mapper/fetchPropTypes");
 
-    document.addEventListener("ComponentSelector.change", this.setTargetByEvent);
+    document.addEventListener(
+      "ComponentSelector.change",
+      this.setTargetByEvent
+    );
   },
 };
 </script>
@@ -110,11 +117,20 @@ export default {
         <!-- <input class="mapper-input" type="text" v-model="backendUrl" /> -->
 
         <label>
-					tag
-					<input  v-model="tag" class="mapper-input" />
-				<button @click="setTag" class="mapper-input load-tag">load tag</button>
+          target
+          <input
+            v-model="activeTargetDataset"
+            class="mapper-input"
+          />
+        </label>
 
-				</label>
+        <label>
+          tag
+          <input v-model="tag" class="mapper-input" />
+          <button @click="setTag" class="mapper-input load-tag">
+            load tag
+          </button>
+        </label>
 
         <button @click="save" class="mapper-input target-sav">save</button>
 
@@ -128,100 +144,11 @@ export default {
 
       <MappableTarget />
     </div>
-    <!-- <svg>
-			<line stroke-width="1px" stroke="#000000" x1="0" y1="0" x2="100" y2="100" id="mySVG" />
-		</svg>-->
   </div>
 </template>
 
 
 <style lang="scss">
-html,
-body,
-div,
-span,
-applet,
-object,
-iframe,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-blockquote,
-pre,
-a,
-abbr,
-acronym,
-address,
-big,
-cite,
-code,
-del,
-dfn,
-em,
-img,
-ins,
-kbd,
-q,
-s,
-samp,
-small,
-strike,
-strong,
-sub,
-sup,
-tt,
-var,
-b,
-u,
-i,
-center,
-dl,
-dt,
-dd,
-li,
-fieldset,
-form,
-label,
-legend,
-table,
-caption,
-tbody,
-tfoot,
-thead,
-tr,
-th,
-td,
-article,
-aside,
-canvas,
-details,
-embed,
-figure,
-figcaption,
-footer,
-header,
-hgroup,
-menu,
-nav,
-output,
-ruby,
-section,
-summary,
-time,
-mark,
-audio,
-video {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font: inherit;
-  vertical-align: baseline;
-}
-
 html {
   font-size: 100%;
   box-sizing: border-box;
@@ -231,9 +158,6 @@ html {
 *:before,
 *:after {
   box-sizing: inherit;
-}
-small {
-  font-size: 90%;
 }
 
 .mapper {

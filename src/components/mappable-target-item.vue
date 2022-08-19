@@ -15,6 +15,9 @@ export default {
     isEmpty() {
       return this.field.composed.length ? false : true;
     },
+    propTypes() {
+      return this.$store.getters["mapper/propTypes"];
+    },
   },
 
   methods: {
@@ -159,12 +162,27 @@ export default {
     <div @click="click" class="mappable-header">
       {{ field.name }}
       {{ field.composed && field.composed.length ? field.composed.length : "" }}
-      |
-      {{ field.type }}
-      <button class="mappable-delete" @click="deleteTarget">x</button>
+      | {{ field.type }}
+
+      <button @click="deleteTarget" class="mappable-delete">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
     </div>
 
     <div v-show="isSelected" class="mappable-body">
+      <label>
+        prop type
+        <select class="mapper-input source-select" v-model="field.type">
+          <option
+            v-for="propType in propTypes"
+            :key="propType"
+            :value="propType"
+          >
+            {{ propType }}
+          </option>
+        </select>
+      </label>
+
       <div>
         <label>
           formatter
@@ -426,6 +444,15 @@ export default {
     flex-wrap: wrap;
     justify-content: space-between;
 
+    .mappable-delete {
+      border: 0;
+      background-color: inherit;
+      cursor: pointer;
+      &:hover {
+        color: red;
+      }
+    }
+
     &:hover {
       background-color: #a0dbe6;
     }
@@ -448,6 +475,7 @@ export default {
 
     .composed-controls {
       display: flex;
+
       button {
         border: 0;
         background-color: inherit;
