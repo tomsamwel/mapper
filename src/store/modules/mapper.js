@@ -10,70 +10,70 @@ const state = {
   tag: "settings",
   propTypes: [],
   source: [{
-      name: "Example source item 1",
-      type: "bigint",
-      composed: ["id"]
-    },
-    {
-      name: "Example source item 2",
-      type: "varchar",
-      composed: ["Example"],
-    },
+    name: "Example source item 1",
+    type: "bigint",
+    composed: ["id"]
+  },
+  {
+    name: "Example source item 2",
+    type: "varchar",
+    composed: ["Example"],
+  },
   ],
   target: [{
-      name: "herpade123",
-      type: "bigint",
-      composed: [],
-      formatter: null,
-      sanitizer: null,
-      validator: null,
-      default: null,
-      label: null,
-      disabled: false,
-      hidden: false,
-      groupNumber: null,
-      required: false,
-      toolbar: false,
-      toolbarIcons: ["bla", "2"],
-      source: "",
-      extra: ""
-    },
-    {
-      name: "Example",
-      type: "varchar",
-      composed: [],
-      formatter: null,
-      sanitizer: null,
-      validator: null,
-      default: null,
-      label: null,
-      disabled: false,
-      hidden: false,
-      groupNumber: null,
-      required: false,
-      toolbar: false,
-      toolbarIcons: [],
-      source: "",
-      extra: ""
-    },
-    {
-      name: "Example",
-      type: "varchar",
-      composed: [],
-      formatter: null,
-      sanitizer: null,
-      validator: null,
-      default: null,
-      label: null,
-      disabled: false,
-      hidden: false,
-      groupNumber: null,
-      required: false,
-      toolbar: false,
-      toolbarIcons: [],
-      source: "",
-      extra: ""
-    },
+    name: "herpade123",
+    type: "bigint",
+    composed: [],
+    formatter: null,
+    sanitizer: null,
+    validator: null,
+    default: null,
+    label: null,
+    disabled: false,
+    hidden: false,
+    groupNumber: null,
+    required: false,
+    toolbar: false,
+    toolbarIcons: ["bla", "2"],
+    source: "",
+    extra: ""
+  },
+  {
+    name: "Example",
+    type: "varchar",
+    composed: [],
+    formatter: null,
+    sanitizer: null,
+    validator: null,
+    default: null,
+    label: null,
+    disabled: false,
+    hidden: false,
+    groupNumber: null,
+    required: false,
+    toolbar: false,
+    toolbarIcons: [],
+    source: "",
+    extra: ""
+  },
+  {
+    name: "Example",
+    type: "varchar",
+    composed: [],
+    formatter: null,
+    sanitizer: null,
+    validator: null,
+    default: null,
+    label: null,
+    disabled: false,
+    hidden: false,
+    groupNumber: null,
+    required: false,
+    toolbar: false,
+    toolbarIcons: [],
+    source: "",
+    extra: ""
+  },
   ],
 };
 
@@ -150,7 +150,7 @@ const actions = {
       command: "ListPropTypes",
     };
 
-    Api.post(state.backendUrl, body).then( json => {
+    Api.post(state.backendUrl, body).then(json => {
       commit("setPropTypes", json.payload);
     });
   },
@@ -315,8 +315,8 @@ const actions = {
       if (
         match.composed.find(
           (composed) =>
-          composed.field === match.name &&
-          composed.source === state.activeSourceDataset
+            composed.field === match.name &&
+            composed.source === state.activeSourceDataset
         )
       )
         return;
