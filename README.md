@@ -1,1 +1,1 @@
-# token-mapper
+# setting-mapper
