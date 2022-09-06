@@ -179,14 +179,13 @@ const actions = {
     let body = {
       command: "FetchCurrentBinding",
       support: {
-        dataset: state.activeSourceDataset,
+        dataset: state.activeTargetDataset,
         tag: state.tag,
       },
     };
 
     Api.post(state.backendUrl, body).then((json) => {
       commit("setTarget", json.payload);
-      commit("setActiveTargetDataset", state.activeSourceDataset);
 
       dispatch("customEvent", "settingMap.load");
     });
@@ -202,11 +201,9 @@ const actions = {
   },
 
   setActiveTargetDataset({
-    commit,
-    dispatch
+    commit
   }, dataset) {
     commit("setActiveTargetDataset", dataset);
-    dispatch("fetchTarget");
   },
 
   setTag({

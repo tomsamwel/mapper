@@ -21,8 +21,13 @@ export default {
     datasets() {
       return this.$store.getters["mapper/datasets"];
     },
-    activeTargetDataset() {
-      return this.$store.getters["mapper/activeTargetDataset"];
+    activeTargetDataset: {
+      get() {
+        return this.$store.getters["mapper/activeTargetDataset"];
+      },
+      set(val) {
+        return this.$store.dispatch("mapper/setActiveTargetDataset", val);
+      },
     },
 
     tag: {
@@ -57,7 +62,7 @@ export default {
       this.$store.dispatch("mapper/setActiveTargetDataset", event.detail.name);
     },
 
-    setTag() {
+    fetchTarget() {
       this.$store.dispatch("mapper/fetchTarget");
     },
 
@@ -118,16 +123,13 @@ export default {
 
         <label>
           target
-          <input
-            v-model="activeTargetDataset"
-            class="mapper-input"
-          />
+          <input v-model="activeTargetDataset" class="mapper-input" />
         </label>
 
         <label>
           tag
           <input v-model="tag" class="mapper-input" />
-          <button @click="setTag" class="mapper-input load-tag">
+          <button @click="fetchTarget" class="mapper-input load-tag">
             load tag
           </button>
         </label>
