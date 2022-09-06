@@ -178,6 +178,7 @@ html {
   &__target {
     width: 50%;
     max-height: 100%;
+    height: 100vh;
     overflow-y: scroll;
     ul {
       padding: 0.2rem;
